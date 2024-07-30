@@ -1,0 +1,22 @@
+{
+  "name": "products-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "Microservice for e-commerce products",
+  "license": "ISC",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
+    "mongoose": "^8.5.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
