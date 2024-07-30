@@ -1,13 +1,5 @@
 # Auth micro-service
 
-## Getting started
-
-- Add **PORT** in a `.env` file.
-
-- `npm install`
-
-- `npm run dev`
-
 ## Routes
 
 - `GET /api/auth/`
