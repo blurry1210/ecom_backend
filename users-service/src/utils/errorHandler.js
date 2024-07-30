@@ -9,6 +9,7 @@ const errorHandler = (error, req, res, next) => {
   ) {
     return res.status(400).json({ error: "expected `email` to be unique" });
   }
+  console.log(error);
   next();
 };
 

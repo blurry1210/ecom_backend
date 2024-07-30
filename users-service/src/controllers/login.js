@@ -4,6 +4,9 @@ const User = require("../models/user");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: "missing email or password" });
+  }
   const user = await User.findOne({ email });
 
   const passwordCorrect =
@@ -16,10 +19,10 @@ const login = async (req, res) => {
   }
 
   const tokenRequest = await axios.post("http://localhost:3001/api/auth", {
-    email,
-    password,
+    email: user.email,
+    id: user.id,
   });
-  const token = tokenRequest.data;
+  const { token } = tokenRequest.data;
 
   res.json({
     message: "Login successful",

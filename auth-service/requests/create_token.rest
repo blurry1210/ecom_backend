@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/auth
+Content-Type: application/json
+
+{
+  "email": "abc@xyz.com",
+  "id": "66a69cfce8c4dbb3078a52cb"
+}
