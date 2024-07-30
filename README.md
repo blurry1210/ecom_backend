@@ -4,29 +4,30 @@
 
 ### Prerequisites
 
-1. Create a .env file in the root directory.
+Create a .env file in the root directory.
 
-2. Add these in the .env file:
+Add these in the .env file:
 
-   - **MONGODB_URI**
-   - **PORT_AUTH_SERVICE**
-   - **PORT_USERS_SERVICE**
-   - **PORT_PRODUCTS_SERVICE**
+- MONGODB_URI
+- SECRET
+- PORT_AUTH_SERVICE
+- PORT_USERS_SERVICE
+- PORT_PRODUCTS_SERVICE
 
-3. Install dependencies for each microservice:
+Install dependencies for each microservice:
 
-   - `cd auth-service && npm install`
+- `cd auth-service && npm install`
 
-   - `cd users-service && npm install`
+- `cd users-service && npm install`
 
-   - `cd products-service && npm install`
+- `cd products-service && npm install`
 
 ## Usage
 
 In the root directory start each microservice:
 
-`npm run start:auth-service`
+- `npm run start:auth-service`
 
-`npm run start:users-service"`
+- `npm run start:users-service"`
 
-`npm run start:products-service"`
+- `npm run start:products-service"`
