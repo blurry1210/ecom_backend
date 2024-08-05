@@ -7,11 +7,18 @@ const authenticate = require('../middleware/authenticate');
 router.get('/search', async (req, res) => {
   const { query } = req.query;
 
+  if (!query) {
+    return res.status(400).json({ message: 'Query parameter is missing' });
+  }
+
   try {
-      const products = await Product.find({ name: { $regex: query, $options: 'i' } }); // Case-insensitive search
-      res.json(products);
+    const regex = new RegExp(query, 'i'); // 'i' for case-insensitive
+    const products = await Product.find({ name: regex }); // Search by product name
+
+    res.status(200).json(products);
   } catch (error) {
-      res.status(500).json({ message: 'Error searching products', error });
+    console.error('Error searching products:', error);
+    res.status(500).json({ message: 'Error searching products', error });
   }
 });
 
@@ -63,16 +70,6 @@ router.get('/', async (req, res) => {
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }
-});
-
-router.get('/search', async (req, res) => {
-  const { query } = req.query;
-  try {
-      const products = await Product.find({ name: { $regex: query, $options: 'i' } });
-      res.json(products);
-  } catch (error) {
-      res.status(500).json({ message: 'Error searching products', error });
   }
 });
 
