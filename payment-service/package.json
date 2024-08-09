@@ -1,0 +1,22 @@
+{
+    "name": "payment-service",
+    "version": "1.0.0",
+    "description": "Payment service using Stripe",
+    "main": "src/app.js",
+    "scripts": {
+      "start": "node src/app.js",
+      "dev": "nodemon src/app.js"
+    },
+    "dependencies": {
+      "cors": "^2.8.5",
+      "dotenv": "^16.0.1",
+      "express": "^4.18.1",
+      "stripe": "^8.174.0"
+    },
+    "devDependencies": {
+      "nodemon": "^2.0.15"
+    },
+    "author": "Your Name",
+    "license": "ISC"
+  }
+  

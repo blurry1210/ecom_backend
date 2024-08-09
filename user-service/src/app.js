@@ -17,6 +17,7 @@ app.use(cors({
 
 app.use(express.json());
 
+// Corrected path for user routes
 app.use('/api/auth', userRoutes);
 
 const PORT = process.env.PORT || 3000;
