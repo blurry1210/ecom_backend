@@ -166,3 +166,57 @@ exports.updateUserRole = async (req, res) => {
     res.status(500).json({ message: 'Failed to update user role', error: error.message });
   }
 };
+
+exports.resetPassword = async (req, res) => {
+  const { userId, token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const tokenDoc = await Token.findOne({ userId, token });
+    if (!tokenDoc) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    await user.save();
+    await tokenDoc.remove();
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+exports.requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const token = new Token({
+      userId: user._id,
+      token: crypto.randomBytes(32).toString('hex'),
+    });
+    await token.save();
+
+    const resetUrl = `${process.env.FRONTEND_BASE_URL}/reset-password/${user._id}/${token.token}`;
+    await sendEmail({
+      email: user.email,
+      subject: 'Password Reset',
+      message: `Please reset your password by clicking the link: ${resetUrl}`,
+    });
+
+    res.status(200).json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
