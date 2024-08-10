@@ -1,18 +1,18 @@
 const nodemailer = require("nodemailer");
-require("dotenv").config(); // Ensure you are loading environment variables
+require("dotenv").config(); 
 
 exports.sendEmail = async (options) => {
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.HOST,
       port: process.env.EMAIL_PORT,
-      secure: process.env.SECURE === "true", // true for 465, false for other ports
+      secure: process.env.SECURE === "true",
       auth: {
         user: process.env.USER,
         pass: process.env.PASS,
       },
       tls: {
-        rejectUnauthorized: false, // Add this to allow self-signed certificates
+        rejectUnauthorized: false, 
       },
     });
 

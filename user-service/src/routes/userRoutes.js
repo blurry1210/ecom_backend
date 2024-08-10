@@ -6,7 +6,7 @@ const router = express.Router();
 router.post('/register', createUser);
 router.get('/verify/:userId/:token', verifyEmail);
 router.post('/login', loginUser);
-router.get('/all', authenticate, getAllUsers);  // Route to get all users
+router.get('/all', authenticate, getAllUsers);  
 router.get('/:userId', getUserById);
 
 router.put('/:userId', updateUserRole);

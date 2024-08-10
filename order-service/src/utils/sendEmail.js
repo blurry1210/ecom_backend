@@ -6,13 +6,13 @@ exports.sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
       host: process.env.HOST,
       port: process.env.EMAIL_PORT,
-      secure: process.env.SECURE === "true", // true for 465, false for other ports
+      secure: process.env.SECURE === "true",
       auth: {
         user: process.env.USER,
         pass: process.env.PASS,
       },
       tls: {
-        rejectUnauthorized: false, // Add this to allow self-signed certificates
+        rejectUnauthorized: false,
       },
     });
 
@@ -21,7 +21,7 @@ exports.sendEmail = async (options) => {
       to: options.email,
       subject: options.subject,
       text: options.message,
-      html: options.html, // Added for HTML content in emails
+      html: options.html, 
     };
 
     const info = await transporter.sendMail(message);

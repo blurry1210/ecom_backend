@@ -1,9 +1,8 @@
 const { sendEmail } = require('../utils/sendEmail');
 const Order = require('../models/Order');
 const User = require('../models/User');
-const Product = require('../models/Product'); // Ensure Product is imported
+const Product = require('../models/Product');
 
-// Fetch orders for a specific distributor
 exports.getDistributorOrders = async (req, res) => {
   try {
     const distributorId = req.params.distributorId;
@@ -16,7 +15,6 @@ exports.getDistributorOrders = async (req, res) => {
   }
 };
 
-// Update the status of an item within an order
 exports.createOrder = async (req, res) => {
   try {
     const { items, address, paymentMethod, totalPrice } = req.body;
@@ -24,22 +22,30 @@ exports.createOrder = async (req, res) => {
 
     console.log('Received order creation request:', req.body);
 
-    // Fetch product details for the order items
     const orderItems = await Promise.all(
       items.map(async (item) => {
         if (!item.productId) {
           throw new Error('Product ID is missing in item');
         }
         const product = await Product.findById(item.productId);
+
         if (!product) {
           throw new Error(`Product not found for ID: ${item.productId}`);
         }
+
+        if (product.quantity < item.quantity) {
+          throw new Error(`Not enough stock for ${product.name}`);
+        }
+
+        product.quantity -= item.quantity;
+        await product.save();
+
         return {
-          product: product._id,  // Correctly assign the product ObjectId here
+          product: product._id,
           quantity: item.quantity,
           distributor: item.distributor,
           status: 'pending',
-          productDetails: product, // Include product details for the email
+          productDetails: product,
         };
       })
     );
@@ -49,7 +55,7 @@ exports.createOrder = async (req, res) => {
     const newOrder = new Order({
       userId,
       items: orderItems.map(item => ({
-        product: item.product,  // Ensure the product ObjectId is included here
+        product: item.product,
         quantity: item.quantity,
         distributor: item.distributor,
         status: 'pending',
@@ -64,31 +70,50 @@ exports.createOrder = async (req, res) => {
 
     await newOrder.save();
 
-    // Fetch user details for email
     const user = await User.findById(userId);
 
-    // Prepare the order details for the email
     const orderDetails = orderItems.map(item => ({
       name: item.productDetails.name,
+      description: item.productDetails.description,
       quantity: item.quantity,
       price: item.productDetails.price,
-      image: item.productDetails.images[0], // Assuming the first image is used
+      category: item.productDetails.category,
+      subcategory: item.productDetails.subcategory,
     }));
 
-    // Send the confirmation email
     await sendEmail({
       email: user.email,
       subject: "Order Confirmation",
-      message: `Thank you for your order! Here are the details:\n\n${orderDetails.map(d => `${d.name} - ${d.quantity} x $${d.price}`).join('\n')}`,
+      message: `
+        Thank you for your order! Here are the details:
+        \n
+        ${orderDetails.map(d => `
+          Product: ${d.name} (${d.category} - ${d.subcategory})
+          Quantity: ${d.quantity} x $${d.price}
+        `).join('\n')}
+        \n
+        Order Information:
+        Name: ${address.firstName} ${address.lastName}
+        Phone Number: ${address.phoneNumber}
+        Delivery Address: ${address.addressLine}, ${address.city}, ${address.postalCode}, ${address.country}
+        Payment Method: ${paymentMethod}
+        Total Price: $${totalPrice}
+      `,
       html: `
         <h1>Order Confirmation</h1>
         <p>Thank you for your order! Here are the details:</p>
         ${orderDetails.map(d => `
           <div>
-            <img src="http://localhost:3001/${d.image}" alt="${d.name}" width="100" height="100" />
-            <p>${d.name} - ${d.quantity} x $${d.price}</p>
+            <h3>Product: ${d.name} (${d.category} - ${d.subcategory})</h3>
+            <p>Quantity: ${d.quantity} x $${d.price}</p>
           </div>
         `).join('')}
+        <h2>Order Information:</h2>
+        <p><strong>Name:</strong> ${address.firstName} ${address.lastName}</p>
+        <p><strong>Phone Number:</strong> ${address.phoneNumber}</p>
+        <p><strong>Delivery Address:</strong> ${address.addressLine}, ${address.city}, ${address.postalCode}, ${address.country}</p>
+        <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+        <p><strong>Total Price:</strong> $${totalPrice}</p>
       `
     });
 
@@ -99,12 +124,12 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// Update order status function with email notification
+
 exports.updateItemStatus = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
     const { status } = req.body;
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate('items.product');
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
@@ -119,19 +144,39 @@ exports.updateItemStatus = async (req, res) => {
     item.status = status;
     await order.save();
 
-    // Fetch user details for email
     const user = await User.findById(order.userId);
 
-    // Send the status update email
     await sendEmail({
       email: user.email,
       subject: "Order Status Update",
-      message: `Your order status has been updated to "${status}".`,
+      message: `
+        Your order status has been updated to "${status}".
+        \n
+        Product: ${item.product.name}
+        Quantity: ${item.quantity}
+        Category: ${item.product.category} - ${item.product.subcategory}
+        \n
+        Order Information:
+        Name: ${order.address.firstName} ${order.address.lastName}
+        Phone Number: ${order.address.phoneNumber}
+        Delivery Address: ${order.address.addressLine}, ${order.address.city}, ${order.address.postalCode}, ${order.address.country}
+        Payment Method: ${order.paymentMethod}
+        Total Price: $${order.totalPrice}
+      `,
       html: `
         <h1>Order Status Update</h1>
         <p>Your order status has been updated to "<strong>${status}</strong>".</p>
-        <p>Item: ${item.product.name} - Quantity: ${item.quantity}</p>
-      `,
+        <h3>Product Details:</h3>
+        <p><strong>Product:</strong> ${item.product.name}</p>
+        <p><strong>Quantity:</strong> ${item.quantity}</p>
+        <p><strong>Category:</strong> ${item.product.category} - ${item.product.subcategory}</p>
+        <h2>Order Information:</h2>
+        <p><strong>Name:</strong> ${order.address.firstName} ${order.address.lastName}</p>
+        <p><strong>Phone Number:</strong> ${order.address.phoneNumber}</p>
+        <p><strong>Delivery Address:</strong> ${order.address.addressLine}, ${order.address.city}, ${order.address.postalCode}, ${order.address.country}</p>
+        <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+        <p><strong>Total Price:</strong> $${order.totalPrice}</p>
+      `
     });
 
     res.json(order);

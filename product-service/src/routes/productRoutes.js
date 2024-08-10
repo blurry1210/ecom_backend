@@ -6,12 +6,10 @@ const authenticate = require('../middleware/authenticate');
 
 router.get('/distributor-products', authenticate, async (req, res) => {
   try {
-    // Ensure the authenticated user is a distributor
     if (req.user.role !== 'distributor') {
       return res.status(403).json({ message: 'Access denied. Only distributors can access this route.' });
     }
 
-    // Fetch products that belong to the authenticated distributor
     const products = await Product.find({ distributor: req.user._id });
 
     res.status(200).json(products);
@@ -31,8 +29,8 @@ router.get('/search', async (req, res) => {
   }
 
   try {
-    const regex = new RegExp(query, 'i'); // 'i' for case-insensitive
-    const products = await Product.find({ name: regex }); // Search by product name
+    const regex = new RegExp(query, 'i'); 
+    const products = await Product.find({ name: regex }); 
 
     res.status(200).json(products);
   } catch (error) {
@@ -49,12 +47,12 @@ router.post('/add', authenticate, upload.array('images', 4), async (req, res) =>
       const { name, description, price, category, subcategory, quantity, distributor, images } = req.body;
       let imagePaths = [];
   
-      // If files are uploaded, use their paths
+      
       if (req.files && req.files.length > 0) {
         imagePaths = req.files.map(file => `uploads/${file.filename}`);
       }
   
-      // If image URLs are provided in the body, use them
+      
       if (images && images.length > 0) {
         imagePaths = imagePaths.concat(images);
       }
@@ -190,12 +188,12 @@ router.put('/:productId', authenticate, async (req, res) => {
 
 router.get('/distributor-products', authenticate, async (req, res) => {
   try {
-    // Ensure the authenticated user is a distributor
+    
     if (req.user.role !== 'distributor') {
       return res.status(403).json({ message: 'Access denied. Only distributors can access this route.' });
     }
 
-    // Fetch products that belong to the authenticated distributor
+    
     const products = await Product.find({ distributor: req.user._id });
 
     res.status(200).json(products);

@@ -13,7 +13,7 @@ exports.sendPasswordResetEmail = async (req, res) => {
 
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-    const resetPasswordExpire = Date.now() + 10 * 60 * 1000; // Token expires in 10 minutes
+    const resetPasswordExpire = Date.now() + 10 * 60 * 1000; 
 
     user.resetPasswordToken = resetPasswordToken;
     user.resetPasswordExpire = resetPasswordExpire;

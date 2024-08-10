@@ -131,14 +131,13 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// This method retrieves all users from the database
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();  // Fetch all users
-    res.status(200).json(users);      // Send the user data as a JSON response
+    const users = await User.find();  
+    res.status(200).json(users);      
   } catch (error) {
-    console.error('Error fetching users:', error);  // Log any errors that occur
-    res.status(500).json({ message: 'Failed to fetch users' });  // Send a failure response
+    console.error('Error fetching users:', error);  
+    res.status(500).json({ message: 'Failed to fetch users' }); 
   }
 };
 
