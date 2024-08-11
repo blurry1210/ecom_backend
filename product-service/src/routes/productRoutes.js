@@ -20,7 +20,6 @@ router.get('/distributor-products', authenticate, async (req, res) => {
 });
 
 
-
 router.get('/search', async (req, res) => {
   const { query } = req.query;
 
@@ -31,6 +30,10 @@ router.get('/search', async (req, res) => {
   try {
     const regex = new RegExp(query, 'i'); 
     const products = await Product.find({ name: regex }); 
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: 'No products found' });
+    }
 
     res.status(200).json(products);
   } catch (error) {

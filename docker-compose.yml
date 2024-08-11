@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   user-service:
     build: ./user-service
     container_name: user-service
     ports:
-      - "3006:3000"
+      - "3000:3000"
     env_file:
       - ./user-service/.env
     networks:
@@ -15,7 +13,7 @@ services:
     build: ./product-service
     container_name: product-service
     ports:
-      - "3007:3001"
+      - "3001:3001"
     env_file:
       - ./product-service/.env
     networks:
@@ -35,7 +33,7 @@ services:
     build: ./stats-service
     container_name: stats-service
     ports:
-      - "3005:3003"
+      - "3003:3003"
     env_file:
       - ./stats-service/.env
     networks:
@@ -45,7 +43,7 @@ services:
     build: ./payment-service
     container_name: payment-service
     ports:
-      - "3008:3004"
+      - "3004:3004"
     env_file:
       - ./payment-service/.env
     networks:
